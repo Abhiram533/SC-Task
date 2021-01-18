@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.task.configuration.EnableTask;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
 import com.abhi.source.model.Usage;
@@ -41,36 +42,26 @@ public class SourceConfiguration {
 
 	@Bean
 	public Job job1(ItemReader<Usage> reader, ItemProcessor<Usage, Usage> itemProcessor, ItemWriter<Usage> writer) {
-		Step step = stepBuilderFactory.get("source")
-				.<Usage, Usage>chunk(1)
-				.reader(reader)
-				.processor(itemProcessor)
-				.writer(writer)
-				.build();
+		Step step = stepBuilderFactory.get("source").<Usage, Usage>chunk(1).reader(reader).processor(itemProcessor)
+				.writer(writer).build();
 
-		return jobBuilderFactory.get("source")
-				.incrementer(new RunIdIncrementer())
-				.start(step)
-				.build();
+		return jobBuilderFactory.get("source").incrementer(new RunIdIncrementer()).start(step).build();
 	}
 
-	
-	
-	  @Bean public JsonItemReader<Usage> jsonItemReader() {
-	  
-	  ObjectMapper objectMapper = new ObjectMapper();
-	  JacksonJsonObjectReader<Usage> jsonObjectReader = new
-	  JacksonJsonObjectReader<>(Usage.class);
-	  jsonObjectReader.setMapper(objectMapper);
-	  
-	  return new JsonItemReaderBuilder<Usage>() .jsonObjectReader(jsonObjectReader)
-	  .resource(usageResource) .name("UsageJsonItemReader") .build(); }
-	 
+	@Bean
+	public JsonItemReader<Usage> jsonItemReader() {
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		JacksonJsonObjectReader<Usage> jsonObjectReader = new JacksonJsonObjectReader<>(Usage.class);
+		jsonObjectReader.setMapper(objectMapper);
+
+		return new JsonItemReaderBuilder<Usage>().jsonObjectReader(jsonObjectReader).resource(new FileSystemResource("C:\\Users\\Administrator\\OneDrive\\Desktop\\userinfo.json"))
+				.name("UsageJsonItemReader").build();
+	}
+
 	@Bean
 	public ItemWriter<Usage> jdbcBillWriter(DataSource dataSource) {
-		JdbcBatchItemWriter<Usage> writer = new JdbcBatchItemWriterBuilder<Usage>()
-						.beanMapped()
-				.dataSource(dataSource)
+		JdbcBatchItemWriter<Usage> writer = new JdbcBatchItemWriterBuilder<Usage>().beanMapped().dataSource(dataSource)
 				.sql("INSERT INTO TAKARA_STAGE (id, first_name, last_name, minutes, data_usage) VALUES (:id, :firstName, :lastName, :minutes, :dataUsage)")
 				.build();
 		return writer;
