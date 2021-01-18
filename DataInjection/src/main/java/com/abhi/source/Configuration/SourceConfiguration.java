@@ -37,8 +37,10 @@ public class SourceConfiguration {
 	@Autowired
 	public StepBuilderFactory stepBuilderFactory;
 
-	@Value("${usage.file.name:classpath:usageinfo.json}")
-	private Resource usageResource;
+	//@Value("${usage.file.name:classpath:usageinfo.json}")\
+	//private Resource usageResource;
+	@Value("${input}")
+	private String path;
 
 	@Bean
 	public Job job1(ItemReader<Usage> reader, ItemProcessor<Usage, Usage> itemProcessor, ItemWriter<Usage> writer) {
@@ -55,7 +57,7 @@ public class SourceConfiguration {
 		JacksonJsonObjectReader<Usage> jsonObjectReader = new JacksonJsonObjectReader<>(Usage.class);
 		jsonObjectReader.setMapper(objectMapper);
 
-		return new JsonItemReaderBuilder<Usage>().jsonObjectReader(jsonObjectReader).resource(new FileSystemResource("C:\\Users\\Administrator\\OneDrive\\Desktop\\userinfo.json"))
+		return new JsonItemReaderBuilder<Usage>().jsonObjectReader(jsonObjectReader).resource(new FileSystemResource(path))
 				.name("UsageJsonItemReader").build();
 	}
 

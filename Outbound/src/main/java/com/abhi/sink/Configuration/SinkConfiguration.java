@@ -35,8 +35,8 @@ public class SinkConfiguration {
 	@Autowired
 	public StepBuilderFactory stepBuilderFactory;
 
-	@Value("${usage.file.name:classpath:usageinfo.json}")
-	private Resource usageResource;
+	@Value("${output}")
+	private String path;
 
 	@Bean
 	public Job job1(ItemReader<Usage> reader, ItemProcessor<Usage, Usage> itemProcessor, ItemWriter<Usage> writer) {
@@ -66,7 +66,7 @@ public class SinkConfiguration {
 	        FlatFileItemWriter<Usage> writer = new FlatFileItemWriter<>();
 	         
 	        //Set output file location
-	        writer.setResource(new FileSystemResource("C:\\Users\\Administrator\\OneDrive\\Desktop\\Takara\\output.csv"));
+	        writer.setResource(new FileSystemResource(path));
 	         
 	        //All job repetitions should "append" to same output file
 	        writer.setAppendAllowed(true);
